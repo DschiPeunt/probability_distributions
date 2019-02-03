@@ -1,5 +1,5 @@
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
 import matplotlib.pyplot as plt
 from PIL import Image, ImageTk
 from numpy import linspace, pi, exp
@@ -15,6 +15,7 @@ plt.rcParams["figure.figsize"] = 14, 8.5
 #====================
 
 def distribution_update(*args):
+    sample_button.config(text="Sample from the "+distribution.get())
     if distribution.get() == "Uniform Distribution":
         # Remove parameter fields from other distributions
         mu_label.place_forget()
@@ -75,6 +76,7 @@ def distribution_update(*args):
     #Call the function to update the plot
     update_plot()
 
+
 def update_plot(*args):
     # Make plot of the selected distribution
     plot = plt.figure()
@@ -116,6 +118,40 @@ def update_plot(*args):
     pdf_plot.config(image=dist_img)
     pdf_plot.image = dist_img # keep a reference!
 
+
+def sample_dist(*args):
+    nr = simpledialog.askinteger("Input", "How many random numbers should be sampled? (Max 100000)", parent=window, minvalue=1, maxvalue=100000)
+    if distribution.get() == "Uniform Distribution":
+        try:
+            if a.get() >= b.get():
+                messagebox.showerror("Error", "Invalid values for a and/or b!")
+            else:
+                plt.plot(linspace(a.get()-(b.get() - a.get())/10, a.get(), 100), [0]*100)
+                plt.plot(linspace(a.get(), b.get(), 100), [1/(b.get() - a.get())]*100)
+                plt.plot(linspace(b.get(), b.get()+(b.get() - a.get())/10, 100), [0]*100)
+        except:
+            messagebox.showerror("Error", "Invalid values for a and/or b!")
+    elif distribution.get() == "Normal Distribution":
+        try:
+            if sigma.get() <= 0:
+                messagebox.showerror("Error", "Invalid value for sigma!")
+            else:
+                x_axis = linspace(mu.get() - 2 * sigma.get()**2, mu.get() + 2 * sigma.get()**2, 100)
+                y_axis = [1/(2 * pi * sigma.get()**2)**(1/2) * exp(- (x - mu.get())**2 / (2 * sigma.get())) for x in x_axis]
+                plt.plot(x_axis, y_axis)
+        except:
+            messagebox.showerror("Error", "Invalid value for mu and/or sigma!")
+    elif distribution.get() == "Exponential Distribution":
+        try:
+            if lamb.get() <= 0:
+                messagebox.showerror("Error", "Invalid value for lambda!")
+            else:
+                x_axis = linspace(0, 1 / lamb.get() + 5, 100)
+                y_axis = [lamb.get() * exp(- lamb.get() * x) for x in x_axis]
+                plt.plot(x_axis, y_axis)
+        except:
+            messagebox.showerror("Error", "Invalid value for lambda!")
+
 #====================
 
 # Create a window
@@ -156,11 +192,10 @@ lamb_field = Entry(window, bd=5, textvariable=lamb, width=50)
 
 #====================
 
-# Create instruction label
+# Create text labels (instruction, sample, exit, parameter)
 instr_label = Label(window, text="Choose the distribution to sample from:")
-# Create exit label
+sample_label = Label(window, text="Click to sample random numbers:")
 exit_label = Label(window, text="Click the button to close the window:")
-# Create parameter label
 parameter_label = Label(window, text="Parameter(s):")
 
 # Create distribution variable
@@ -170,29 +205,36 @@ distribution.set("Uniform Distribution")
 # Create dropdown to choose distribution
 distribution_choice = OptionMenu(window, distribution, "Uniform Distribution", "Normal Distribution", "Exponential Distribution")
 
-# Create field to show the pdf of the chosen distribution
+# Create image labels to show the formula and plot of the chosen distribution
 pdf_formula = Label(window)
-# Create field to show the plot of the pdf
 pdf_plot = Label(window)
-# Create button to update the plot
+
+# Create buttons to update the plot, sample from the distribution and exit the program
 update_button = Button(window, text="Update plot", command=update_plot)
-# Create exit button
+sample_button = Button(window, text="Sample from the "+distribution.get(), command=sample_dist)
 exit_button = Button(window, text="Exit", command=window.destroy)
 
-# Keep plot, parameters and pdf_formula updated
+# Keep parameters, pdf_formula, pdf_plot and sample_button updated
 distribution.trace("w", distribution_update)
 
 #====================
 
 # Add components in wanted order to the window
+# Text labels
 instr_label.place(x = 0, y = 0, width=250, height=30)
-distribution_choice.place(x = 270, y = 0, width=250, height=30)
-parameter_label.place(x = 540, y = 0, width=100, height=30)
-update_button.place(x = 270, y = 50, width=250, height=30)
-pdf_formula.place(x = 540, y = 50, width=484, height=80)
+sample_label.place(x = 0, y = 50, width=250, height=30)
 exit_label.place(x = 0, y = 100, width=250, height=30)
-exit_button.place(x = 270, y = 100, width=250, height=30)
+parameter_label.place(x = 540, y = 0, width=100, height=30)
+
+# Image labels
+pdf_formula.place(x = 660, y = 50, width=364, height=80)
 pdf_plot.place(x = 0, y = 150, width=1024, height=618)
+
+# Buttons and Dropdown
+distribution_choice.place(x = 270, y = 0, width=250, height=30)
+sample_button.place(x = 270, y = 50, width=250, height=30)
+exit_button.place(x = 270, y = 100, width=250, height=30)
+update_button.place(x = 540, y = 50, width=100, height=30)
 
 # Initialize the starting plot and the display of the parameters
 distribution_update()
