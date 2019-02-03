@@ -120,7 +120,7 @@ def update_plot(*args):
 
 
 def sample_dist(*args):
-    nr = simpledialog.askinteger("Input", "How many random numbers should be sampled? (Max 100000)", parent=window, minvalue=1, maxvalue=100000)
+    nr = simpledialog.askinteger("Input", "How many random numbers should be sampled? (Max 100000)", parent=root, minvalue=1, maxvalue=100000)
     rand_nrs = []
     if distribution.get() == "Uniform Distribution":
         try:
@@ -149,68 +149,105 @@ def sample_dist(*args):
                     rand_nrs.append(random.expovariate(lamb.get()))
         except:
             messagebox.showerror("Error", "Invalid value for lambda!")
+    return rand_nrs
+
+
+def create_showcase_window(*args):
+    rand_nrs = sample_dist()
+    # Create the window and set tite and size
+    showcase = Toplevel(root)
+    showcase.title("Sample from the "+distribution.get())
+    showcase.geometry("512x768")
+    # Create button to save the sample
+    save_txt_label = Label(showcase, text="Save sample to .txt file:")
+    save_txt_button = Button(showcase, text="Save", command=lambda: save_to_txt(rand_nrs))
+    save_txt_label.place(x = 0, y = 0, width=256, height=30)
+    save_txt_button.place(x = 256, y = 0, width=256, height=30)
+    # Add the generated random numbers to the window
+    rand_nrs_box = Listbox(showcase, width=256, height=768)
+    rand_nrs_box.place(x = 0, y = 30, width=492, height=738)
+    for item in rand_nrs:
+        rand_nrs_box.insert(END, item)
+    # Add scrollbar
+    scrollbar = Scrollbar(showcase)
+    scrollbar.place(x = 492, y = 30, width=20, height=738)
+    # Attach listbox (rand_nrs_box) to scrollbar
+    rand_nrs_box.config(yscrollcommand=scrollbar.set)
+    scrollbar.config(command=rand_nrs_box.yview)
+
+
+def save_to_txt(rand_nrs):
+    if distribution.get() == "Uniform Distribution":
+        filename = "uniform" + "_a_" + str(a.get()) + "_b_" + str(b.get()) + "_sample"
+    elif distribution.get() == "Normal Distribution":
+        filename = "normal" + "_mu_" + str(mu.get()) + "_sigma_" + str(sigma.get()) + "_sample"
+    elif distribution.get() == "Exponential Distribution":
+        filename = "exponential" + "_lambda_" + str(lamb.get()) + "_sample"
+    with open(filename + ".txt", "w") as f:
+        for item in rand_nrs:
+            f.write(str(item)+"\n")
 
 #====================
 
 # Create a window
-window = Tk()
+root = Tk()
 # Set the window title
-window.title("Random Number Generator")
+root.title("Random Number Generator")
 # Set window size
-window.geometry("1024x768")
+root.geometry("1024x768")
 
 #====================
 
 # Make parameters for the distributions
 # Uniform Distribution
-a = DoubleVar(window)
-b = DoubleVar(window)
+a = DoubleVar(root)
+b = DoubleVar(root)
 a.set(0)
 b.set(1)
-a_label = Label(window, text="a =")
-b_label = Label(window, text="b =")
-a_field = Entry(window, bd=5, textvariable=a, width=50)
-b_field = Entry(window, bd=5, textvariable=b, width=50)
+a_label = Label(root, text="a =")
+b_label = Label(root, text="b =")
+a_field = Entry(root, bd=5, textvariable=a, width=50)
+b_field = Entry(root, bd=5, textvariable=b, width=50)
 
 # Normal Distribution
-mu = DoubleVar(window)
-sigma = DoubleVar(window)
+mu = DoubleVar(root)
+sigma = DoubleVar(root)
 mu.set(0)
 sigma.set(1)
-mu_label = Label(window, text="mu =")
-sigma_label = Label(window, text="sigma =")
-mu_field = Entry(window, bd=5, textvariable=mu, width=50)
-sigma_field = Entry(window, bd=5, textvariable=sigma, width=50)
+mu_label = Label(root, text="mu =")
+sigma_label = Label(root, text="sigma =")
+mu_field = Entry(root, bd=5, textvariable=mu, width=50)
+sigma_field = Entry(root, bd=5, textvariable=sigma, width=50)
 
 # Exponential Distribution
-lamb = DoubleVar(window)
+lamb = DoubleVar(root)
 lamb.set(1)
-lamb_label = Label(window, text="lambda =")
-lamb_field = Entry(window, bd=5, textvariable=lamb, width=50)
+lamb_label = Label(root, text="lambda =")
+lamb_field = Entry(root, bd=5, textvariable=lamb, width=50)
 
 #====================
 
 # Create text labels (instruction, sample, exit, parameter)
-instr_label = Label(window, text="Choose the distribution to sample from:")
-sample_label = Label(window, text="Click to sample random numbers:")
-exit_label = Label(window, text="Click the button to close the window:")
-parameter_label = Label(window, text="Parameter(s):")
+instr_label = Label(root, text="Choose the distribution to sample from:")
+sample_label = Label(root, text="Click to sample random numbers:")
+exit_label = Label(root, text="Click the button to close the window:")
+parameter_label = Label(root, text="Parameter(s):")
 
 # Create distribution variable
-distribution = StringVar(window)
+distribution = StringVar(root)
 # Set a default value
 distribution.set("Uniform Distribution")
 # Create dropdown to choose distribution
-distribution_choice = OptionMenu(window, distribution, "Uniform Distribution", "Normal Distribution", "Exponential Distribution")
+distribution_choice = OptionMenu(root, distribution, "Uniform Distribution", "Normal Distribution", "Exponential Distribution")
 
 # Create image labels to show the formula and plot of the chosen distribution
-pdf_formula = Label(window)
-pdf_plot = Label(window)
+pdf_formula = Label(root)
+pdf_plot = Label(root)
 
 # Create buttons to update the plot, sample from the distribution and exit the program
-update_button = Button(window, text="Update plot", command=update_plot)
-sample_button = Button(window, text="Sample from the "+distribution.get(), command=sample_dist)
-exit_button = Button(window, text="Exit", command=window.destroy)
+update_button = Button(root, text="Update plot", command=update_plot)
+sample_button = Button(root, text="Sample from the "+distribution.get(), command=create_showcase_window)
+exit_button = Button(root, text="Exit", command=root.destroy)
 
 # Keep parameters, pdf_formula, pdf_plot and sample_button updated
 distribution.trace("w", distribution_update)
@@ -238,4 +275,4 @@ update_button.place(x = 540, y = 50, width=100, height=30)
 distribution_update()
 
 # Wait for user input
-window.mainloop()
+root.mainloop()
