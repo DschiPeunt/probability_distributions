@@ -160,6 +160,8 @@ lamb_field = Entry(window, bd=5, textvariable=lamb, width=50)
 instr_label = Label(window, text="Choose the distribution to sample from:")
 # Create exit label
 exit_label = Label(window, text="Click the button to close the window:")
+# Create parameter label
+parameter_label = Label(window, text="Parameter(s):")
 
 # Create distribution variable
 distribution = StringVar(window)
@@ -168,16 +170,14 @@ distribution.set("Uniform Distribution")
 # Create dropdown to choose distribution
 distribution_choice = OptionMenu(window, distribution, "Uniform Distribution", "Normal Distribution", "Exponential Distribution")
 
-# Create parameter label
-parameter_label = Label(window, text="Parameter(s):")
 # Create field to show the pdf of the chosen distribution
 pdf_formula = Label(window)
+# Create field to show the plot of the pdf
+pdf_plot = Label(window)
 # Create button to update the plot
 update_button = Button(window, text="Update plot", command=update_plot)
 # Create exit button
 exit_button = Button(window, text="Exit", command=window.destroy)
-# Load placeholder for distribution plot
-pdf_plot = Label(window)
 
 # Keep plot, parameters and pdf_formula updated
 distribution.trace("w", distribution_update)
