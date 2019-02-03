@@ -15,7 +15,6 @@ plt.rcParams["figure.figsize"] = 14, 8.5
 #====================
 
 def distribution_update(*args):
-    sample_button.config(text="Sample from the "+distribution.get())
     if distribution.get() == "Uniform Distribution":
         # Remove parameter fields from other distributions
         mu_label.place_forget()
@@ -74,11 +73,9 @@ def distribution_update(*args):
         pdf_formula.config(image=pdf_img)
         pdf_formula.image = pdf_img # keep a reference!
     #Call the function to update the plot
-    plot_dist()
+    update_plot()
 
-
-
-def plot_dist():
+def update_plot(*args):
     # Make plot of the selected distribution
     plot = plt.figure()
     if distribution.get() == "Uniform Distribution":
@@ -173,23 +170,17 @@ distribution_choice = OptionMenu(window, distribution, "Uniform Distribution", "
 
 # Create parameter label
 parameter_label = Label(window, text="Parameter(s):")
-
 # Create field to show the pdf of the chosen distribution
-pdf_img = ImageTk.PhotoImage(Image.open("uniform_pdf.png"))
-pdf_formula = Label(window, image=pdf_img)
-pdf_formula.image = pdf_img # keep a reference!
-
-# Create button to sample the choosen distribution
-sample_button = Button(window, text="Sample from the "+distribution.get(),command=plot_dist)
+pdf_formula = Label(window)
+# Create button to update the plot
+update_button = Button(window, text="Update plot", command=update_plot)
 # Create exit button
 exit_button = Button(window, text="Exit", command=window.destroy)
-# Keep sample_button and pdf_formula updated
-distribution.trace("w", distribution_update)
-
 # Load placeholder for distribution plot
-dist_img = ImageTk.PhotoImage(Image.open("distribution_plot.png"))
-pdf_plot = Label(window, image=dist_img)
-pdf_plot.image = dist_img # keep a reference!
+pdf_plot = Label(window)
+
+# Keep plot, parameters and pdf_formula updated
+distribution.trace("w", distribution_update)
 
 #====================
 
@@ -197,11 +188,14 @@ pdf_plot.image = dist_img # keep a reference!
 instr_label.place(x = 0, y = 0, width=250, height=30)
 distribution_choice.place(x = 270, y = 0, width=250, height=30)
 parameter_label.place(x = 540, y = 0, width=100, height=30)
-sample_button.place(x = 270, y = 50, width=250, height=30)
+update_button.place(x = 270, y = 50, width=250, height=30)
 pdf_formula.place(x = 540, y = 50, width=484, height=80)
 exit_label.place(x = 0, y = 100, width=250, height=30)
 exit_button.place(x = 270, y = 100, width=250, height=30)
 pdf_plot.place(x = 0, y = 150, width=1024, height=618)
+
+# Initialize the starting plot and the display of the parameters
+distribution_update()
 
 # Wait for user input
 window.mainloop()
