@@ -205,5 +205,3 @@ pdf_plot.place(x = 0, y = 150, width=1024, height=618)
 
 # Wait for user input
 window.mainloop()
-
-ich bin zwei kleine pupsnasen
