@@ -121,14 +121,14 @@ def update_plot(*args):
 
 def sample_dist(*args):
     nr = simpledialog.askinteger("Input", "How many random numbers should be sampled? (Max 100000)", parent=window, minvalue=1, maxvalue=100000)
+    rand_nrs = []
     if distribution.get() == "Uniform Distribution":
         try:
             if a.get() >= b.get():
                 messagebox.showerror("Error", "Invalid values for a and/or b!")
             else:
-                plt.plot(linspace(a.get()-(b.get() - a.get())/10, a.get(), 100), [0]*100)
-                plt.plot(linspace(a.get(), b.get(), 100), [1/(b.get() - a.get())]*100)
-                plt.plot(linspace(b.get(), b.get()+(b.get() - a.get())/10, 100), [0]*100)
+                for x in range(0, nr):
+                    rand_nrs.append(random.uniform(a.get(), b.get()))
         except:
             messagebox.showerror("Error", "Invalid values for a and/or b!")
     elif distribution.get() == "Normal Distribution":
@@ -136,9 +136,8 @@ def sample_dist(*args):
             if sigma.get() <= 0:
                 messagebox.showerror("Error", "Invalid value for sigma!")
             else:
-                x_axis = linspace(mu.get() - 2 * sigma.get()**2, mu.get() + 2 * sigma.get()**2, 100)
-                y_axis = [1/(2 * pi * sigma.get()**2)**(1/2) * exp(- (x - mu.get())**2 / (2 * sigma.get())) for x in x_axis]
-                plt.plot(x_axis, y_axis)
+                for x in range(0, nr):
+                    rand_nrs.append(random.normalvariate(mu.get(), sigma.get()))
         except:
             messagebox.showerror("Error", "Invalid value for mu and/or sigma!")
     elif distribution.get() == "Exponential Distribution":
@@ -146,9 +145,8 @@ def sample_dist(*args):
             if lamb.get() <= 0:
                 messagebox.showerror("Error", "Invalid value for lambda!")
             else:
-                x_axis = linspace(0, 1 / lamb.get() + 5, 100)
-                y_axis = [lamb.get() * exp(- lamb.get() * x) for x in x_axis]
-                plt.plot(x_axis, y_axis)
+                for x in range(0, nr):
+                    rand_nrs.append(random.expovariate(lamb.get()))
         except:
             messagebox.showerror("Error", "Invalid value for lambda!")
 
